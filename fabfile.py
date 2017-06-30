@@ -3,6 +3,7 @@ import logging
 
 sp_root_dir = 'cd ~/oildexgitsource/supplier-portal/ &&'
 spr_root_dir = 'cd ~/oildexgitsource/supplier-portal-rest/ &&'
+
 env.user = 'sprasad'
 env.hosts = ['odx.tecnics.com']
 tqa_root_dir = 'cd ~/oildexdist/ &&'
@@ -34,7 +35,7 @@ def unzipSP():
 def deploySP():
   logger.info ('finally deploying supplier portal to TQA.......')
   run(tqa_root_dir + 'rm -rf deploy/sp/* && cp -r dist/*  deploy/sp/')
-  logger.info ('Deployed To TQA ------Thank God.....IT DOESNT SUCKS !!!')      
+  logger.info ('Deployed To TQA  !!')      
 
 
 
@@ -43,23 +44,34 @@ def deploySP():
 
 def pullSPR(git_branch):
   local(spr_root_dir+'rm -rf target/universal/* && git fetch origin && git checkout '+git_branch +'&& git pull origin '+git_branch)
+  logger.info('deploying SPR to TQA...')
 
 def packSPR():
   local(spr_root_dir+'~/opt/play-2.5.10/bin/activator dist')
+  logger.info('packaging SPR with SBT...')
 
 def copySPRtoTQA():
   local(spr_root_dir+'scp target/universal/*.zip tqa:oildexdist')
+  logger.info('Copying SPR to TQA...')
 
 def unzipSPR():
-  run(tqa_root_dir+'unzip *.zip -d spr')
+  run(tqa_root_dir+'unzip *.zip -d sprTemp/')
+  logger.info('Extracting SPR ..')
 
 def deploySPR():
-  sudo('sudo supervisorctl stop spr')
+  stopSPR()
+  logger.info('Stopping SPR ...')
   run(tqa_root_dir+'rm -rf deploy/spr/*')
-  run(tqa_root_dir+'cd spr && cd supp* && cp -r *'+tqa_root_dir+'deploy/spr/')
+  run(tqa_root_dir+'cd sprTemp && cd supp* && cp -r * ~/oildexdist/deploy/spr/')
   sudo('sudo supervisorctl start spr')
-  print 'DONE..........'
+  logger.info('Stopping SPR ...')
+  logger.info('SPR deployed ...!!')
+  
+def cleanTQA():
+	sudo(tqa_root_dir + 'rm -r *.zip sprTemp/*')
 
+def stopSPR():
+	sudo('sudo supervisorctl stop spr')
 
 
 # Main Deploy...
@@ -76,10 +88,11 @@ def sp(git_branch):
 def spr(git_branch):
   pullSPR(git_branch)
   packSPR()
+  cleanTQA()
   copySPRtoTQA()
   unzipSPR()
-  #deploySPR()
-
+  deploySPR()
+  
 
 
 
