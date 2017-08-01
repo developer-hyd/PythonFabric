@@ -68,7 +68,7 @@ def deploySPR():
   logger.info('SPR deployed ...!!')
   
 def cleanTQA():
-	sudo(tqa_root_dir + 'rm -r *.zip sprTemp/*')
+	sudo(tqa_root_dir + 'rm -rf *.zip sprTemp/*')
 
 def stopSPR():
 	sudo('sudo supervisorctl stop spr')
