@@ -4,12 +4,28 @@ import logging
 sp_root_dir = 'cd ~/oildexgitsource/supplier-portal/ &&'
 spr_root_dir = 'cd ~/oildexgitsource/supplier-portal-rest/ &&'
 
-env.user = 'sprasad'
-env.hosts = ['odx.tecnics.com']
+# env.user = 'sprasad'
+# env.hosts = ['odx.tecnics.com']
+
+ 
 tqa_root_dir = 'cd ~/oildexdist/ &&'
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def hqa():
+    env.user = 'oildexqaadmin'
+    env.hosts = ['172.16.3.191']
+    env.alias = 'hqa'
+    logger.info("Selcted Environment ::: "+env.alias)
+
+def tqa():
+    env.user = 'sprasad'
+    env.hosts = ['odx.tecnics.com']
+    env.alias ='tqa'
+    logger.info("Selcted Environment ::: "+env.alias)
+
 
 # Supplier Portal Deployment....
 
@@ -26,7 +42,7 @@ def zipSP():
 
 def copySPtoTQA():
   logger.info ('sending supplier portal to TQA.........')
-  local(sp_root_dir + 'scp sp.tar.zip tqa:oildexdist && rm -r dist *.zip')
+  local(sp_root_dir + 'scp sp.tar.zip'+env.alias+':oildexdist && rm -r dist *.zip')
 
 def unzipSP():
   logger.info ('extracting supplier portal at TQA....')
@@ -51,7 +67,7 @@ def packSPR():
   logger.info('packaging SPR with SBT...')
 
 def copySPRtoTQA():
-  local(spr_root_dir+'scp target/universal/*.zip tqa:oildexdist')
+  local(spr_root_dir+'scp target/universal/*.zip '+env.alias+':oildexdist')
   logger.info('Copying SPR to TQA...')
 
 def unzipSPR():
